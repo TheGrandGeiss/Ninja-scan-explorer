@@ -35,14 +35,34 @@ export async function fetchLiveTxData() {
       throw new Error(result.message || 'Failed to fetch');
     }
 
+    console.log(result);
+
     const rawItems = result.data?.items || [];
-    const significantTrades = rawItems.filter(
-      (tx: any) => (tx.volume_usd || 0) >= 100,
-    );
+    const significantTrades = rawItems.map((tx: any) => {
+      const isBuy = tx.base.type_swap === 'to';
+
+      const iconUrl = `https://img.logokit.com/crypto/${tx.base.symbol}?token=${process.env.LOGOKIT_API_KEY}`;
+
+      return {
+        id: tx.tx_hash,
+        from: tx.owner,
+        to: tx.source,
+        toName: tx.source.charAt(0).toUpperCase() + tx.source.slice(1),
+        uiAmount: `${tx.base.ui_amount.toFixed(2)} ${tx.base.symbol}`,
+        valueUsd: tx.volume_usd || 0,
+        symbol: tx.base.symbol,
+        icon: iconUrl,
+        tokenAddress: tx.quote.address,
+        type: tx.tx_type, // "swap"
+        description: isBuy
+          ? `Bought ${tx.base.symbol} with ${tx.quote.symbol}`
+          : `Sold ${tx.base.symbol} for ${tx.quote.symbol}`,
+      };
+    });
 
     return {
       success: true,
-      items: significantTrades.slice(0, 20),
+      items: significantTrades,
     };
   } catch (error) {
     console.error('Birdeye Fetch Error:', error);
