@@ -129,3 +129,16 @@
     @apply font-mono;
   }
 }
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-20deg);
+  }
+}
+
+@theme {
+  --animate-shimmer: shimmer 1.5s infinite;
+}

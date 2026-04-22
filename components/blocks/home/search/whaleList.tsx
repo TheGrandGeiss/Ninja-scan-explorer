@@ -1,11 +1,11 @@
 'use client';
 
-import { truncate } from '@/lib/utils';
+import { formatTimeAgo, truncate } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FaRegCopy } from 'react-icons/fa';
-import { GoArrowUpRight } from 'react-icons/go';
+import { GoArrowUpRight, GoClock } from 'react-icons/go';
 
 interface Transaction {
   id: string;
@@ -19,9 +19,10 @@ interface Transaction {
   symbol: string;
   icon: string;
   hash: string;
+  blockUnixTime: number;
 }
 
-export default function TransactionList({
+export default function WhaleTxList({
   transactions,
 }: {
   transactions: Transaction[];
@@ -41,6 +42,25 @@ export default function TransactionList({
     if (!text) return;
     navigator.clipboard.writeText(text);
   };
+
+  if (transactions.length === 0) {
+    return (
+      <div className='max-w-4xl mx-auto mt-4 w-full border border-dashed border-gray-300 py-20 flex flex-col items-center justify-center font-mono'>
+        <span className='text-2xl mb-2'>🌊</span>
+        <h3 className='text-black font-bold uppercase tracking-tighter'>
+          No Whales Sighted
+        </h3>
+        <p className='text-gray-400 text-xs'>
+          The ocean is quiet. Lower your sonar or check back later.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className='mt-4 text-[10px] border border-black px-4 py-1 hover:bg-black hover:text-white transition-all'>
+          REFRESH SONAR
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className='max-w-4xl mx-auto mt-4 mb-24 w-full'>
@@ -70,7 +90,7 @@ export default function TransactionList({
                   <span className='text-gray-500 ml-1'>to</span>
                   <Link href={`/ex/${tx.to}`}>
                     <span className='font-bold text-black hover:underline'>
-                      {truncate(tx.to) || 'Unknown'}
+                      {tx.toName || truncate(tx.to) || 'Unknown'}
                     </span>
                   </Link>
                   <FaRegCopy
@@ -105,6 +125,11 @@ export default function TransactionList({
                     className='text-gray-300 text-[10px] cursor-pointer hover:text-black'
                     onClick={() => handleCopy(tx.tokenAddress)}
                   />
+                </div>
+
+                <div className='flex items-center gap-1 text-gray-400 text-[11px] shrink-0'>
+                  <GoClock size={12} />
+                  <span>{formatTimeAgo(tx.blockUnixTime)}</span>
                 </div>
               </div>
             </div>

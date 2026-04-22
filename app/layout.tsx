@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import Navbar from '@/components/blocks/home/Navbar';
+import RecentTx from '@/components/blocks/home/RecentTx';
+import SearchBar from '@/components/blocks/home/Search';
 
 const jetbrains = JetBrains_Mono({
   display: 'swap',
@@ -29,7 +32,12 @@ export default function RootLayout({
         'font-mono',
         jetbrains.className,
       )}>
-      <body className='min-h-full flex flex-col bg-background'>{children}</body>
+      <body className='min-h-full flex flex-col bg-background'>
+        <Navbar />
+        <RecentTx />
+        <SearchBar />
+        {children}
+      </body>
     </html>
   );
 }
