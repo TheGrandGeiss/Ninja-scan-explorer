@@ -5,7 +5,7 @@ import { FaWallet } from 'react-icons/fa';
 export default async function RecentTx() {
   const { items } = await getHomeLiveTransactions();
   const tx = items?.find(
-    (item) =>
+    (item: any) =>
       item &&
       typeof item.from === 'string' &&
       typeof item.uiAmount === 'string' &&
