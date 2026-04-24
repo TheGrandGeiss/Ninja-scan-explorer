@@ -1,9 +1,9 @@
-import { fetchLiveTxData } from '@/lib/actions/TransactionData';
+import { getHomeLiveTransactions } from '@/lib/data/homeLiveTx';
 import { truncate } from '@/lib/utils';
 import { FaWallet } from 'react-icons/fa';
 
 export default async function RecentTx() {
-  const { items } = await fetchLiveTxData({ limit: 20 });
+  const { items } = await getHomeLiveTransactions();
   const tx = items?.find(
     (item) =>
       item &&

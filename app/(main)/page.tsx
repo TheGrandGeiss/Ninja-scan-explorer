@@ -1,11 +1,11 @@
 import TransactionList from '@/components/blocks/home/TransactionList';
-import { fetchLiveTxData } from '@/lib/actions/TransactionData';
+import { getHomeLiveTransactions } from '@/lib/data/homeLiveTx';
 
 export default async function Home() {
-  const transactions = await fetchLiveTxData();
+  const { items } = await getHomeLiveTransactions();
   return (
     <>
-      <TransactionList transactions={transactions.items} />
+      <TransactionList transactions={items} />
     </>
   );
 }
