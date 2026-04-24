@@ -25,7 +25,10 @@ export interface TokenSecurityData {
 
 const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
 
-export async function fetchLiveTxData() {
+export async function fetchLiveTxData(options?: {
+  fresh?: boolean;
+  limit?: number;
+}) {
   const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
 
   if (!BIRDEYE_API_KEY) {
@@ -34,18 +37,31 @@ export async function fetchLiveTxData() {
   }
 
   try {
+    const limit = options?.limit ?? 100;
+    const fetchOptions = options?.fresh
+      ? {
+          method: 'GET' as const,
+          headers: {
+            'X-API-KEY': BIRDEYE_API_KEY,
+            'x-chain': 'solana',
+            accept: 'application/json',
+          },
+          cache: 'no-store' as const,
+        }
+      : {
+          method: 'GET' as const,
+          headers: {
+            'X-API-KEY': BIRDEYE_API_KEY,
+            'x-chain': 'solana',
+            accept: 'application/json',
+          },
+          next: { revalidate: 10 },
+        };
+
     // Using the V3 All Trades endpoint
     const response = await fetch(
-      'https://public-api.birdeye.so/defi/v3/txs?offset=0&limit=100&sort_by=block_unix_time&sort_type=desc&tx_type=all&ui_amount_mode=scaled',
-      {
-        method: 'GET',
-        headers: {
-          'X-API-KEY': BIRDEYE_API_KEY,
-          'x-chain': 'solana',
-          accept: 'application/json',
-        },
-        next: { revalidate: 10 },
-      },
+      `https://public-api.birdeye.so/defi/v3/txs?offset=0&limit=${limit}&sort_by=block_unix_time&sort_type=desc&tx_type=all&ui_amount_mode=scaled`,
+      fetchOptions,
     );
 
     if (!response.ok) {
@@ -59,8 +75,6 @@ export async function fetchLiveTxData() {
     if (!result.success) {
       throw new Error(result.message || 'Failed to fetch');
     }
-
-    console.log(result);
 
     const rawItems = result.data?.items || [];
     const significantTrades = rawItems.map((tx: any) => {
@@ -183,6 +197,28 @@ async function getNinjaSecurityReport(mintAddress: string) {
   }
 }
 
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  if (items.length === 0) return [];
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (true) {
+      const current = nextIndex++;
+      if (current >= items.length) return;
+      results[current] = await mapper(items[current], current);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
 export async function fetchTokenSecurityList(): Promise<{
   success: boolean;
   items: TokenSecurityData[];
@@ -209,19 +245,12 @@ export async function fetchTokenSecurityList(): Promise<{
     const tokens = trendingData.data?.tokens || [];
     console.log('tokens fetched:', tokens.length);
 
-    // Scan each token one at a time to avoid rate limits
-    const securityReports: Awaited<
-      ReturnType<typeof getNinjaSecurityReport>
-    >[] = [];
-
-    for (let i = 0; i < tokens.length; i++) {
-      const report = await getNinjaSecurityReport(tokens[i].address);
-      securityReports.push(report);
-
-      if (i + 1 < tokens.length) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
+    // Faster than strict sequential while still controlling burst rate
+    const securityReports = await mapWithConcurrency(
+      tokens,
+      3,
+      async (token: any) => getNinjaSecurityReport(token.address),
+    );
 
     const enriched: TokenSecurityData[] = tokens.map(
       (token: any, i: number) => {
@@ -249,9 +278,6 @@ export async function fetchTokenSecurityList(): Promise<{
     );
 
     const rugTokensOnly = enriched.filter((token) => token.riskScore > 0);
-    console.log(enriched);
-    console.log('rugTokensOnly:', rugTokensOnly.length);
-
     return { success: true, items: rugTokensOnly };
   } catch (error) {
     console.error('Security fetch error:', error);
