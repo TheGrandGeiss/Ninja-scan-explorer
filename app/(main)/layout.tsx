@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import Navbar from '@/components/blocks/home/Navbar';
 import RecentTx from '@/components/blocks/home/RecentTx';
 import SearchBar from '@/components/blocks/home/Search';
+import { Suspense } from 'react';
 
 const jetbrains = JetBrains_Mono({
   display: 'swap',
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body className='min-h-full flex flex-col bg-background'>
         <Navbar />
         <RecentTx />
-        <SearchBar />
+        <Suspense fallback={null}>
+          <SearchBar />
+        </Suspense>
         {children}
       </body>
     </html>

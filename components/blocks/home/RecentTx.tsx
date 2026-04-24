@@ -3,7 +3,7 @@ import { truncate } from '@/lib/utils';
 import { FaWallet } from 'react-icons/fa';
 
 export default async function RecentTx() {
-  const { items } = await fetchLiveTxData({ fresh: true, limit: 1 });
+  const { items } = await fetchLiveTxData({ limit: 1 });
   const tx = items?.[0];
 
   if (!tx) return null;

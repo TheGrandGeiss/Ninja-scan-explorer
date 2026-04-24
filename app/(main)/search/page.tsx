@@ -28,7 +28,7 @@ const SearchRoute = async ({
     const { items } = await fetchTokenSecurityList();
     return (
       <Suspense fallback={<TokensSkeleton />}>
-        <TokenList tokens={items} />;
+        <TokenList tokens={items} />
       </Suspense>
     );
   }
