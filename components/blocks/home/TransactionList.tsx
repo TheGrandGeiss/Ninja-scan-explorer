@@ -47,7 +47,7 @@ export default function TransactionList({
       <section className='w-full border border-gray-300 font-mono'>
         {currentTransactions.map((tx, index) => (
           <div
-            onClick={() => router.push(`/tx/${tx.hash}`)}
+            // onClick={() => router.push(`/tx/${tx.hash}`)}
             key={index}>
             <div className='group flex items-center gap-4 w-full py-3 px-4 border-b border-gray-300 hover:bg-gray-50 transition-colors'>
               <div className='flex items-center gap-3 w-full'>
@@ -82,7 +82,7 @@ export default function TransactionList({
                 <div className='flex items-center gap-2'>
                   <span className='text-gray-500 text-[12px]'>for</span>
                   <span className='font-bold text-[13px]'>{tx.uiAmount}</span>
-                  <span className='bg-gray-100 text-gray-400 text-[10px] px-1 py-0.5 rounded-sm'>
+                  <span className='bg-gray-100 text-green-400 text-[10px] px-1 py-0.5 rounded-sm'>
                     $
                     {(tx.valueUsd ?? 0).toLocaleString(undefined, {
                       minimumFractionDigits: 2,

@@ -67,7 +67,7 @@ export default function WhaleTxList({
       <section className='w-full border border-gray-300 font-mono'>
         {currentTransactions.map((tx, index) => (
           <div
-            onClick={() => router.push(`/tx/${tx.hash}`)}
+            // onClick={() => router.push(`/tx/${tx.hash}`)}
             key={index}>
             <div className='group flex items-center gap-4 w-full py-3 px-4 border-b border-gray-300 hover:bg-gray-50 transition-colors'>
               <div className='flex items-center gap-3 w-full'>

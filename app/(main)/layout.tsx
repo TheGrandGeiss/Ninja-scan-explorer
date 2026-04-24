@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
-import './globals.css';
+import '@/app/globals.css';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/blocks/home/Navbar';
 import RecentTx from '@/components/blocks/home/RecentTx';

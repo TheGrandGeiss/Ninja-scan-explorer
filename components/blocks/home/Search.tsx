@@ -83,8 +83,13 @@ export default function SearchBar() {
             <button
               key={chip.id}
               onClick={() => {
-                setSearchValue(chip.prompt);
-                router.push(`/search?type=${chip.route}`);
+                if (isActive) {
+                  setSearchValue('');
+                  router.push('/');
+                } else {
+                  setSearchValue(chip.prompt);
+                  router.push(`/search?type=${chip.route}`);
+                }
               }}
               className={`group relative border px-3 py-1.5 transition-all rounded-none ${
                 isActive

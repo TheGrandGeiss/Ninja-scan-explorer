@@ -1,8 +1,8 @@
-import MevList from '@/components/blocks/home/search/MEVtracker';
-import NinjaLaunchList from '@/components/blocks/home/search/NinjaLaunchList';
-import SmartMoneyList from '@/components/blocks/home/search/smartMoneyList';
-import TokenList from '@/components/blocks/home/search/tokenList';
-import WhaleTxList from '@/components/blocks/home/search/whaleList';
+import MevList from '@/components/blocks/home/quick-action-chips/MEVtracker';
+import NinjaLaunchList from '@/components/blocks/home/quick-action-chips/NinjaLaunchList';
+import SmartMoneyList from '@/components/blocks/home/quick-action-chips/smartMoneyList';
+import TokenList from '@/components/blocks/home/quick-action-chips/tokenList';
+import WhaleTxList from '@/components/blocks/home/quick-action-chips/whaleList';
 import TokensSkeleton from '@/components/blocks/loaders/tokenListSkeleton';
 import {
   fetchMevTransactions,

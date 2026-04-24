@@ -77,7 +77,7 @@ export async function fetchLiveTxData() {
         valueUsd: tx.volume_usd || 0,
         symbol: tx.base.symbol,
         icon: iconUrl,
-        tokenAddress: tx.quote.address,
+        tokenAddress: tx.base.address,
         type: tx.tx_type, // "swap"
         description: isBuy
           ? `Bought ${tx.base.symbol} with ${tx.quote.symbol}`
@@ -450,7 +450,6 @@ export async function fetchMevTransactions() {
       botProfile[owner].tokens.add(tx.base?.symbol || 'Unknown');
     });
 
-    // Filter for wallets doing 2+ trades in this small batch (High Frequency)
     const mevMoves = trades
       .filter((tx: any) => botProfile[tx.owner].count >= 2)
       .map((tx: any) => {
