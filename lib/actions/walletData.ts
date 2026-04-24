@@ -139,7 +139,7 @@ export async function getWalletProfiler(
       { symbol: string; name: string; image: string | null }
     >();
 
-    detectedAssets.forEach((asset) => {
+    detectedAssets.forEach((asset: any) => {
       tokenMetaByMint.set(asset.mint, {
         symbol: asset.symbol,
         name: asset.name,
@@ -178,12 +178,11 @@ export async function getWalletProfiler(
 
       const known = tokenMetaByMint.get(mint);
       const symbol =
-        known?.symbol ||
-        swapToken.symbol ||
-        swapToken.tokenSymbol ||
-        'UNKNOWN';
-      const name = known?.name || swapToken.name || swapToken.tokenName || symbol;
-      const image = known?.image || swapToken.image || swapToken.logoURI || null;
+        known?.symbol || swapToken.symbol || swapToken.tokenSymbol || 'UNKNOWN';
+      const name =
+        known?.name || swapToken.name || swapToken.tokenName || symbol;
+      const image =
+        known?.image || swapToken.image || swapToken.logoURI || null;
 
       return { mint, symbol, name, image };
     }
@@ -215,7 +214,8 @@ export async function getWalletProfiler(
     function getCounterparty(tx: any) {
       const transfer = tx.tokenTransfers?.find(
         (t: any) =>
-          t.fromUserAccount === walletAddress || t.toUserAccount === walletAddress,
+          t.fromUserAccount === walletAddress ||
+          t.toUserAccount === walletAddress,
       );
 
       if (transfer) {
@@ -225,14 +225,18 @@ export async function getWalletProfiler(
         ) {
           return transfer.fromUserAccount;
         }
-        if (transfer.toUserAccount && transfer.toUserAccount !== walletAddress) {
+        if (
+          transfer.toUserAccount &&
+          transfer.toUserAccount !== walletAddress
+        ) {
           return transfer.toUserAccount;
         }
       }
 
       const nativeTransfer = tx.nativeTransfers?.find(
         (t: any) =>
-          t.fromUserAccount === walletAddress || t.toUserAccount === walletAddress,
+          t.fromUserAccount === walletAddress ||
+          t.toUserAccount === walletAddress,
       );
 
       if (nativeTransfer) {
@@ -292,14 +296,18 @@ export async function getWalletProfiler(
             const metaJson = await metaRes.json();
             const asset = metaJson?.result;
             const symbol =
-              asset?.token_info?.symbol || asset?.content?.metadata?.symbol || '';
+              asset?.token_info?.symbol ||
+              asset?.content?.metadata?.symbol ||
+              '';
             const name =
               asset?.content?.metadata?.name ||
               asset?.token_info?.name ||
               symbol ||
               '';
             const image =
-              asset?.content?.links?.image || asset?.content?.files?.[0]?.uri || null;
+              asset?.content?.links?.image ||
+              asset?.content?.files?.[0]?.uri ||
+              null;
 
             if (symbol || name || image) {
               tokenMetaByMint.set(mint, {
