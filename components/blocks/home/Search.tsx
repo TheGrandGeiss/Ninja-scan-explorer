@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import {
   InputGroup,
   InputGroupAddon,
@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/input-group';
 import { FaSearch } from 'react-icons/fa';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { resolveAddressSearch } from '@/lib/actions/resolveAddressSearch';
 
 export const QUICK_ACTION_CHIPS = [
   {
@@ -48,11 +49,25 @@ export const QUICK_ACTION_CHIPS = [
 
 export default function SearchBar() {
   const [searchValue, setSearchValue] = useState('');
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const searchParams = useSearchParams(); // Hook to read URL params
 
   // Get the current 'type' from the URL (e.g., 'whale', 'rug')
   const currentType = searchParams.get('type');
+
+  const runSearch = () => {
+    const q = searchValue.trim();
+    if (!q) return;
+
+    startTransition(async () => {
+      const resolved = await resolveAddressSearch(q);
+      if (resolved.ok) {
+        router.push(resolved.path);
+        return;
+      }
+    });
+  };
 
   return (
     <section className='max-w-4xl mx-auto w-full mt-4 px-6 md:px-0 font-mono'>
@@ -60,7 +75,13 @@ export default function SearchBar() {
         <InputGroupInput
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          placeholder='Paste address or ask Ninja AI...'
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              runSearch();
+            }
+          }}
+          placeholder='Paste wallet or token mint address…'
           className='flex-1 w-full bg-transparent border-none rounded-none px-4 outline-none focus:ring-0 text-sm'
         />
         <InputGroupAddon
@@ -68,7 +89,9 @@ export default function SearchBar() {
           className='flex items-center justify-center px-5 bg-transparent border-l border-black'>
           <button
             type='button'
-            className='text-black hover:scale-110 transition-transform flex items-center justify-center'>
+            disabled={isPending}
+            onClick={runSearch}
+            className='text-black hover:scale-110 transition-transform flex items-center justify-center disabled:opacity-40'>
             <FaSearch size={18} />
           </button>
         </InputGroupAddon>
